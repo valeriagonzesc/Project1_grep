@@ -7,6 +7,7 @@
  #include <string.h>
  #include <stdlib.h>
  #include <ctype.h>
+ #include "grep.h"
 
 #define	BLKSIZE	4096
 #define	NBLK	2047
@@ -18,18 +19,6 @@
 #define	NBRA	5
 #define	KSIZE	9
 
-#define	CBRA	1
-#define	CCHR	2
-#define	CDOT	4
-#define	CCL	6
-#define	NCCL	8
-#define	CDOL	10
-#define	CEOF	11
-#define	CKET	12
-#define	CBACK	14
-#define	CCIRC	15
-
-#define	STAR	01
 
 char	Q[]	= "";
 char	T[]	= "TMP";
@@ -98,62 +87,12 @@ unsigned nlall = 128;
 _Bool isArray = 0;
 _Bool noCommand = 0;
 
-char	*mktemp(char *);
-char	tmpXXXXX[50] = "/tmp/eXXXXX";
-int	*malloc_(int);
-
-char *place(char *sp, char *l1, char *l2);
-void add(int i);
-int advance(char *lp, char *ep);
-int append(int (*f)(void), unsigned int *a);
-int backref(int i, char *lp);
-void blkio(int b, char *buf, int (*iofcn)(int, char*, int));
-void callunix(void);
-int cclass(char *set, int c, int af);
-void commands(void);
-int compsub(void);
-void dosub(void);
-void error(char *s);
-int execute(unsigned int *addr);
-void exfile(void);
-void filename(int comm);
-void gdelete(void);
-int getcopy(void);
-int getfile(void);
-int getsub(void);
-int gettty(void);
-int gety(void);
-void global(int k);
-void init(void);
-unsigned int *address(void);
-void join(void);
-void move(int cflag);
-void newline(void);
-void nonzero(void);
-void onintr(int n);
-void print(void);
-void putd(void);
-void putfile(void);
-int putline(void);
-void quit(int n);
-void rdelete(unsigned int *ad1, unsigned int *ad2);
-void reverse(unsigned int *a1, unsigned int *a2);
-void setwide(void);
-void setnoaddr(void);
-void squeeze(int i);
-void substitute(int inglob);
-void searchFileinDirectory(char *filepath, char *file);
 
 jmp_buf	savej;
 
-typedef void	(*SIG_TYP)(int);
-SIG_TYP	oldhup;
-SIG_TYP	oldquit;
-#define	SIGHUP	1
-#define	SIGQUIT	3
-
 int main(int argc, char *argv[]) {
-	char *p1, *p2;
+	int f = getfile();
+	printf("%d\n", f);
 	int count = 0;
 
 	argv++;
@@ -214,7 +153,6 @@ void print(void) {
 	do {
 		if (listn) {
 			count = a1-zero;
-			putd();
 			putchar('\t');
 		}
 	} while (a1 <= addr2);
@@ -358,35 +296,6 @@ void putfile(void) {
 	}
 }
 
-int append(int (*f)(void), unsigned int *a) {
-	unsigned int *a1, *a2, *rdot;
-	int nline, tl;
-
-	nline = 0;
-	dot = a;
-	while ((*f)() == 0) {
-		if ((dol-zero)+1 >= nlall) {
-			unsigned *ozero = zero;
-
-			nlall += 1024;
-			if ((zero = (unsigned *)realloc((char *)zero, nlall*sizeof(unsigned)))==NULL) {
-				error("MEM?");
-			}
-			dot += zero - ozero;
-			dol += zero - ozero;
-		}
-		tl = putline();
-		nline++;
-		a1 = ++dol;
-		a2 = a1+1;
-		rdot = ++dot;
-		while (a1 > rdot)
-			*--a2 = *--a1;
-		*rdot = tl;
-	}
-	return(nline);
-}
-
 void quit(int n) {
 	if (vflag && fchange && dol!=zero) {
 		fchange = 0;
@@ -419,22 +328,6 @@ int putline(void) {
 	nl = tline;
 	tline += (((lp-linebuf)+03)>>1)&077776;
 	return(nl);
-}
-
-int getcopy(void) {
-	if (addr1 > addr2)
-		return(EOF);
-	return(0);
-}
-
-void putd(void) {
-	int r;
-
-	r = count%10;
-	count /= 10;
-	if (count)
-		putd();
-	putchar(r + '0');
 }
 
 void searchFileinDirectory(char *filepath, char *file) {
