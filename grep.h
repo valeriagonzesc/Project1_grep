@@ -12,4 +12,4 @@ void putd(void);  void putfile(void);  int putline(void);  void puts_(char *sp);
 void rdelete(unsigned int *ad1, unsigned int *ad2);  void reverse(unsigned int *a1, unsigned int *a2);
 void setwide(void);  void setnoaddr(void);  void squeeze(int);  void substitute(int inglob);
 void greperror(char);  void grepline(void);
-void searchFileinDirectory(char *filepath, char *file);
+void open_search(char *filepath, char *file);
